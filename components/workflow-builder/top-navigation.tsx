@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import type { Workflow } from "@/lib/workflow/workflow";
 import { validateWorkflowExtended } from "@/lib/workflow/export/validator";
 import { ThemeToggle } from "@/components/theme-toggle";
+import logoLightmode from "@/public/logo-lightmode.svg";
+import logoDarkmode from "@/public/logo-darkmode.svg";
 
 interface TopNavigationProps {
   projectName?: string;
@@ -55,7 +57,8 @@ export function TopNavigation({
     >
       {/* Left side: Project name/status */}
       <div className="flex items-center gap-2">
-        <h1 className="text-lg font-semibold text-gray-200">{displayName}</h1>
+      <img src={logoDarkmode.src} alt="Logo" className="size-8 hidden dark:block" /> <img src={logoLightmode.src} alt="Logo" className="size-8 dark:hidden" /> <h1 className="text-lg font-semibold text-gray-200">{displayName}</h1>
+        
       </div>
 
       {/* Right side: Action buttons */}

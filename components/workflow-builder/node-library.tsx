@@ -260,7 +260,7 @@ export function NodeLibrary({ onDragStart, onAddNode, onAddMagenticScaffold }: N
         "bottom-6 overflow-y-auto",
         "bg-white/12 backdrop-blur-sm"
       )}
-      style={{ height: "calc(100vh - 6.5rem)" }}
+      style={{ height: "calc(100vh - 8.5rem)" }}
     >
       <div>
         <h3 className="text-sm font-semibold mb-1">Node Library</h3>
