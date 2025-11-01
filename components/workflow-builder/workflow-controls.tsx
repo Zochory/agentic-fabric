@@ -33,7 +33,7 @@ export function WorkflowControls({
     validation && (validation.warnings.length > 0 || validation.connectivityWarnings.length > 0);
 
   return (
-    <Panel position="top-left" className="space-y-2 p-3">
+    <Panel position="bottom-right" className="space-y-2 p-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">Workflow Controls</h2>
       </div>
@@ -93,4 +93,3 @@ export function WorkflowControls({
     </Panel>
   );
 }
-

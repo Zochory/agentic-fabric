@@ -92,7 +92,7 @@ export const ExecutorNodeWrapper: React.FC<ExecutorNodeWrapperProps> = ({
                 width: "48px",
                 height: "48px",
                 transform: "translate(-50%, -50%)",
-                pointerEvents: isHovered ? "auto" : "none",
+                pointerEvents: "auto",
               }}
             />
           )}
@@ -106,7 +106,7 @@ export const ExecutorNodeWrapper: React.FC<ExecutorNodeWrapperProps> = ({
                 width: "48px",
                 height: "48px",
                 transform: "translate(50%, -50%)",
-                pointerEvents: isHovered ? "auto" : "none",
+                pointerEvents: "auto",
               }}
             />
           )}
@@ -129,4 +129,3 @@ export const ExecutorNodeWrapper: React.FC<ExecutorNodeWrapperProps> = ({
     </motion.div>
   );
 };
-

@@ -6,7 +6,14 @@ import {
   createNodeDataFromExecutorType,
 } from "../conversion";
 import type { BaseExecutor } from "../types";
-import type { FunctionExecutor, AgentExecutor, WorkflowExecutor, RequestInfoExecutor } from "../executors";
+import type {
+  FunctionExecutor,
+  AgentExecutor,
+  WorkflowExecutor,
+  RequestInfoExecutor,
+  MagenticAgentExecutor,
+  MagenticOrchestratorExecutor,
+} from "../executors";
 
 describe("Conversion Utilities", () => {
   describe("createExecutorFromNodeType", () => {
@@ -33,6 +40,26 @@ describe("Conversion Utilities", () => {
       const executor = createExecutorFromNodeType("request-info-executor", "req-1");
       expect(executor.type).toBe("request-info-executor");
       expect((executor as RequestInfoExecutor).requestType).toBeDefined();
+    });
+
+    it("should create a magentic orchestrator executor", () => {
+      const executor = createExecutorFromNodeType("magentic-orchestrator-executor", "orch-1");
+      const orchestrator = executor as MagenticOrchestratorExecutor;
+      expect(orchestrator.type).toBe("magentic-orchestrator-executor");
+      expect(orchestrator.progressTracking).toBe(true);
+    });
+
+    it("should create a magentic agent executor with preset", () => {
+      const executor = createExecutorFromNodeType(
+        "magentic-agent-executor",
+        "agent-role",
+        undefined,
+        { presetKey: "planner" }
+      );
+      const magentic = executor as MagenticAgentExecutor;
+      expect(magentic.type).toBe("magentic-agent-executor");
+      expect(magentic.agentRole).toBe("planner");
+      expect(magentic.capabilities).toContain("planning");
     });
 
     it("should create a default executor for unknown types", () => {
@@ -106,49 +133,62 @@ describe("Conversion Utilities", () => {
 
   describe("workflowToReactFlow", () => {
     it("should convert workflow format to React Flow nodes and edges", () => {
-      const workflow = {
-        id: "workflow-1",
-        name: "Test Workflow",
-        executors: [
-          {
-            id: "executor-1",
-            type: "executor",
-            label: "Test Executor",
-          },
-          {
-            id: "executor-2",
-            type: "agent-executor",
-            label: "Test Agent",
-            agentId: "agent-1",
-          } as AgentExecutor,
-        ],
-        edges: [
-          {
-            id: "edge-1",
-            source: "executor-1",
-            target: "executor-2",
-          },
-        ],
-        metadata: {
-          nodePositions: {
-            "executor-1": { x: 100, y: 100 },
-            "executor-2": { x: 300, y: 100 },
-          },
+    const workflow = {
+      id: "workflow-1",
+      name: "Test Workflow",
+      executors: [
+        {
+          id: "executor-1",
+          type: "executor",
+          label: "Test Executor",
         },
-      };
+        {
+          id: "executor-2",
+          type: "agent-executor",
+          label: "Test Agent",
+          agentId: "agent-1",
+        } as AgentExecutor,
+        {
+          id: "orch-1",
+          type: "magentic-orchestrator-executor",
+          label: "Orchestrator",
+        } as MagenticOrchestratorExecutor,
+      ],
+      edges: [
+        {
+          id: "edge-1",
+          source: "executor-1",
+          target: "executor-2",
+        },
+        {
+          id: "edge-2",
+          source: "orch-1",
+          target: "executor-2",
+        },
+      ],
+      metadata: {
+        nodePositions: {
+          "executor-1": { x: 100, y: 100 },
+          "executor-2": { x: 300, y: 100 },
+          "orch-1": { x: 200, y: -50 },
+        },
+      },
+    };
 
-      const { nodes, edges } = workflowToReactFlow(workflow);
+    const { nodes, edges } = workflowToReactFlow(workflow);
 
-      expect(nodes).toHaveLength(2);
-      expect(nodes[0].id).toBe("executor-1");
-      expect(nodes[0].position).toEqual({ x: 100, y: 100 });
-      expect(nodes[1].id).toBe("executor-2");
-      expect(nodes[1].type).toBe("agent-executor");
+    expect(nodes).toHaveLength(3);
+    expect(nodes[0].id).toBe("executor-1");
+    expect(nodes[0].position).toEqual({ x: 100, y: 100 });
+    expect(nodes[1].id).toBe("executor-2");
+    expect(nodes[1].type).toBe("agent-executor");
+    const orchestratorNode = nodes.find((node) => node.id === "orch-1");
+    expect(orchestratorNode?.type).toBe("magentic-orchestrator-executor");
 
-      expect(edges).toHaveLength(1);
-      expect(edges[0].source).toBe("executor-1");
-      expect(edges[0].target).toBe("executor-2");
-    });
+    expect(edges).toHaveLength(2);
+    expect(edges[0].source).toBe("executor-1");
+    expect(edges[0].target).toBe("executor-2");
+  });
 
     it("should handle missing node positions with default", () => {
       const workflow = {
@@ -188,6 +228,26 @@ describe("Conversion Utilities", () => {
       expect(nodeData.variant).toBe("agent-executor");
     });
 
+    it("should create magentic agent node data", () => {
+      const executor: MagenticAgentExecutor = {
+        id: "mag-agent-1",
+        type: "magentic-agent-executor",
+        agentRole: "planner",
+      };
+      const nodeData = createNodeDataFromExecutorType("magentic-agent-executor", executor);
+      expect(nodeData.variant).toBe("agent-executor");
+    });
+
+    it("should create magentic orchestrator node data", () => {
+      const executor: MagenticOrchestratorExecutor = {
+        id: "orch-1",
+        type: "magentic-orchestrator-executor",
+        planningStrategy: "adaptive",
+      };
+      const nodeData = createNodeDataFromExecutorType("magentic-orchestrator-executor", executor);
+      expect(nodeData.variant).toBe("executor");
+    });
+
     it("should create workflow executor node data", () => {
       const executor: WorkflowExecutor = {
         id: "workflow-1",
@@ -209,4 +269,3 @@ describe("Conversion Utilities", () => {
     });
   });
 });
-
