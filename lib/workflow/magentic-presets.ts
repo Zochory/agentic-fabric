@@ -32,7 +32,7 @@ export const MAGENTIC_AGENT_PRESETS: MagenticAgentPreset[] = [
     label: "Web Surfer Agent",
     description: "Searches and summarizes web sources to gather external facts.",
     agentRole: "web-surfer",
-    capabilities: ["web-search", "summarisation"],
+    capabilities: ["web-search", "summarization"],
     systemPrompt:
       "You are the web research specialist. Use browsing tools to gather and summarise authoritative information that helps the team.",
     toolIds: ["web-browser", "http-client"],
