@@ -871,7 +871,7 @@ const WorkflowCanvas = () => {
 
     setNodes(Array.from(nextNodesMap.values()));
     setEdges(nextEdges);
-  }, [MAGENTIC_AGENT_PRESETS, reactFlow, setEdges, setNodes]);
+  }, [reactFlow, setEdges, setNodes]);
 
   // Handle node update from properties panel
   const handleNodeUpdate = useCallback(
