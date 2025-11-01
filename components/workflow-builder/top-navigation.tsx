@@ -39,7 +39,6 @@ export function TopNavigation({
     ? validateWorkflowExtended(workflow)
     : null;
 
-  const isValid = validation?.valid ?? false;
   const hasErrors = validation
     ? validation.valid === false || validation.typeErrors.length > 0
     : false;
