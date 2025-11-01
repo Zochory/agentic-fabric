@@ -17,6 +17,7 @@ Defined in `lib/workflow/magentic-presets.ts`. The `MAGENTIC_AGENT_PRESET_MAP` a
 | --- | --- | --- | --- | --- |
 | `planner` | Planner Agent | planner | Breaks work into steps, owns fact and progress ledgers. | `magentic-task-ledger`, `magentic-progress-ledger` |
 | `web` | Web Surfer Agent | web-surfer | Gathers external facts via browsing and summarisation. | `web-browser`, `http-client` |
+| `file` | File Surfer Agent | file-surfer | Surfaces, previews, and manages files for agent workflows. | `file-browser`, `file-preview` |
 | `coder` | Coder Agent | coder | Writes and executes code to satisfy delegated subtasks. | `hosted-code-interpreter` |
 | `critic` | Critic Agent | critic | Reviews teammate output for accuracy, completeness, and quality gates. | `analysis-notes` |
 
