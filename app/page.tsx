@@ -392,6 +392,7 @@ const TextBlockWorkflowNode = memo(({
 
   return <TextBlockCard {...cardProps} data-id={id} isSelected={selected} />;
 });
+TextBlockWorkflowNode.displayName = "TextBlockWorkflowNode";
 
 const AttributeWorkflowNode = memo(({
   id,
@@ -405,6 +406,7 @@ const AttributeWorkflowNode = memo(({
     <AttributeNode {...attributeProps} data-id={id} isSelected={selected} />
   );
 });
+AttributeWorkflowNode.displayName = "AttributeWorkflowNode";
 
 const nodeTypes: Record<string, React.ComponentType<NodeProps>> = {
   // Legacy node types (kept for backward compatibility)
@@ -799,7 +801,7 @@ const WorkflowCanvas = () => {
       );
 
       if (existing) {
-        const executor = (existing.data as any)?.executor as BaseExecutor | undefined;
+        const executor = existing.data.executor as BaseExecutor | undefined;
         const updatedExecutor = executor
           ? {
               ...executor,
@@ -824,7 +826,7 @@ const WorkflowCanvas = () => {
           position: targetPosition,
           data: {
             ...(existing.data as WorkflowNodeDataWithIndex),
-            executor: updatedExecutor ?? (existing.data as any).executor,
+            executor: updatedExecutor ?? (existing.data.executor as BaseExecutor),
             label: preset.label,
             description: preset.description,
           },
@@ -878,9 +880,10 @@ const WorkflowCanvas = () => {
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === nodeId && isExecutorNode(node as ReactFlowNode<WorkflowNodeDataWithIndex>)) {
-            const currentData = node.data as any;
-            if (currentData.executor) {
-              const updatedExecutor = { ...currentData.executor, ...updates };
+            const currentData = node.data as WorkflowNodeDataWithIndex;
+            const executor = currentData.executor as BaseExecutor | undefined;
+            if (executor) {
+              const updatedExecutor = { ...executor, ...updates };
               const nextNode: ReactFlowNode<WorkflowNodeDataWithIndex> = {
                 ...node,
                 data: {
@@ -907,19 +910,20 @@ const WorkflowCanvas = () => {
 
   // Check if node is an executor node
   const isExecutorNode = (node: ReactFlowNode<WorkflowNodeDataWithIndex>): boolean => {
-    const data = node.data as any;
+    const data = node.data;
+    const variant = data.variant as string | undefined;
     return (
-      data?.variant === "executor" ||
-      data?.variant === "function-executor" ||
-      data?.variant === "agent-executor" ||
-      data?.variant === "workflow-executor" ||
-      data?.variant === "request-info-executor"
+      variant === "executor" ||
+      variant === "function-executor" ||
+      variant === "agent-executor" ||
+      variant === "workflow-executor" ||
+      variant === "request-info-executor"
     );
   };
 
   // Handle node selection
   const handleNodeClick = useCallback(
-    (_event: React.MouseEvent, node: any) => {
+    (_event: React.MouseEvent, node: ReactFlowNode) => {
       setSelectedNode(node as ReactFlowNode<WorkflowNodeDataWithIndex>);
     },
     []

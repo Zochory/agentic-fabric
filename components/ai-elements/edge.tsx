@@ -111,9 +111,9 @@ export const TemporaryEdge = ({
   target,
   style,
 }: EdgeProps) => {
-  // Try to use actual node positions if available for better accuracy
-  const sourceNode = source ? useInternalNode(source) : null;
-  const targetNode = target ? useInternalNode(target) : null;
+  // Always call hooks unconditionally
+  const sourceNode = useInternalNode(source);
+  const targetNode = useInternalNode(target);
 
   const edgePath = useMemo(() => {
     // Use calculated positions if nodes are available
@@ -198,8 +198,8 @@ export const AnimatedEdge = ({
   targetPosition,
   onHover,
 }: AnimatedEdgeProps) => {
-  const sourceNode = source ? useInternalNode(source) : null;
-  const targetNode = target ? useInternalNode(target) : null;
+  const sourceNode = useInternalNode(source);
+  const targetNode = useInternalNode(target);
   const [isHovered, setIsHovered] = React.useState(false);
   const reactFlow = useReactFlow();
 
