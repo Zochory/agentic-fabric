@@ -1,7 +1,6 @@
 "use client";
 
 import React, { memo } from "react";
-import { Handle, Position, type NodeProps as ReactFlowNodeProps } from "@xyflow/react";
 import {
   Node,
   NodeContent,
@@ -44,7 +43,7 @@ export interface SwitchCaseNodeProps {
 /**
  * Switch-case edge group node - conditional routing based on expression value
  */
-export const SwitchCaseNode = memo(({ id, data, selected }: SwitchCaseNodeProps) => {
+export const SwitchCaseNode = memo(({ data, selected }: SwitchCaseNodeProps) => {
   const { handles, group, label, description } = data;
 
   const displayLabel = label || `Switch/Case (${group.cases.length} cases)`;

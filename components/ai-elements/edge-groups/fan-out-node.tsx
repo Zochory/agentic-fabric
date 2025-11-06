@@ -1,7 +1,6 @@
 "use client";
 
 import React, { memo } from "react";
-import { Handle, Position, type NodeProps as ReactFlowNodeProps } from "@xyflow/react";
 import {
   Node,
   NodeContent,
@@ -44,7 +43,7 @@ export interface FanOutNodeProps {
 /**
  * Fan-out edge group node - one source broadcasts to multiple targets
  */
-export const FanOutNode = memo(({ id, data, selected }: FanOutNodeProps) => {
+export const FanOutNode = memo(({ data, selected }: FanOutNodeProps) => {
   const { handles, group, label, description } = data;
 
   const displayLabel = label || `Fan-Out (${group.targets.length} targets)`;

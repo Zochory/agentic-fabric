@@ -69,14 +69,12 @@ import {
   defaultTextBlockData,
   defaultWorkflowStepData,
 } from "@/lib/workflow/types";
-import type { WorkflowReactFlowNode, WorkflowNodeData, WorkflowNodeDataWithIndex } from "@/lib/workflow/conversion";
+import type { WorkflowReactFlowNode, WorkflowNodeDataWithIndex } from "@/lib/workflow/conversion";
 import {
   reactFlowToWorkflow,
-  workflowToReactFlow,
   createExecutorFromNodeType,
   createNodeDataFromExecutorType,
 } from "@/lib/workflow/conversion";
-import type { Workflow } from "@/lib/workflow/workflow";
 import type { FanInEdgeGroup, FanOutEdgeGroup, SwitchCaseEdgeGroup } from "@/lib/workflow/edges";
 import type { ExecutorType } from "@/lib/workflow/executors";
 import { MAGENTIC_AGENT_PRESETS } from "@/lib/workflow/magentic-presets";
@@ -359,7 +357,7 @@ function createEdgeGroupNode(nodeType: EdgeGroupNodeType, position: XYPosition):
   };
 }
 
-const WorkflowStepNode = memo(({ id, data }: { id: string; data: WorkflowStepNodeData }) => (
+const WorkflowStepNode = memo(({ data }: { data: WorkflowStepNodeData }) => (
   <Node handles={data.handles}>
     <NodeHeader>
       <NodeTitle>{data.label}</NodeTitle>
