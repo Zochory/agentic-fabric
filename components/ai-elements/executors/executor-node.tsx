@@ -5,7 +5,7 @@ import { Handle, Position } from "@xyflow/react";
 import { motion, AnimatePresence } from "motion/react";
 import { Info, ChevronDown, ChevronUp, Settings, Activity, UserCheck } from "lucide-react";
 import type { BaseExecutor } from "@/lib/workflow/types";
-import type { ExecutorType } from "@/lib/workflow/executors";
+import type { ExecutorType, AgentExecutor, MagenticOrchestratorExecutor } from "@/lib/workflow/executors";
 
 import { ConnectionHandle } from "@/components/ai-elements/connection-handle";
 
@@ -29,7 +29,11 @@ export interface ExecutorNodeData {
 /**
  * Props for ExecutorNode component
  */
-export type ExecutorNodeProps = any;
+export interface ExecutorNodeProps {
+  id: string;
+  data: ExecutorNodeData;
+  selected?: boolean;
+}
 
 const springTransition = {
   type: "spring" as const,
@@ -50,9 +54,10 @@ export const ExecutorNode = memo(({ id, data, selected }: ExecutorNodeProps) => 
   const executorTypeName = executorType;
   
   // Get model from executor (for agent executors) or default
-  const metadata = (executor.metadata as Record<string, any> | undefined) ?? {};
-  const magenticMeta = (metadata.magentic as Record<string, any> | undefined) ?? {};
-  const model = (executor as any).model || metadata.model || "GPT-5";
+  const metadata = (executor.metadata as Record<string, unknown> | undefined) ?? {};
+  const magenticMeta = (metadata.magentic as Record<string, unknown> | undefined) ?? {};
+  const agentExecutor = executor as AgentExecutor;
+  const model = agentExecutor.model || (metadata.model as string | undefined) || "GPT-5";
 
   const hovered = internalHovered;
 
@@ -61,9 +66,10 @@ export const ExecutorNode = memo(({ id, data, selected }: ExecutorNodeProps) => 
   };
 
   // Get current values for suggestions (Magentic Orchestrator)
-  const planningStrategy = (executor as any).planningStrategy || magenticMeta.planningStrategy || "adaptive";
-  const progressTracking = (executor as any).progressTracking !== false;
-  const humanInTheLoop = (executor as any).humanInTheLoop === true;
+  const orchestrator = executor as MagenticOrchestratorExecutor;
+  const planningStrategy = orchestrator.planningStrategy || (magenticMeta.planningStrategy as string | undefined) || "adaptive";
+  const progressTracking = orchestrator.progressTracking !== false;
+  const humanInTheLoop = orchestrator.humanInTheLoop === true;
   const currentProgressTracking = progressTracking ? "Enabled" : "Disabled";
   const currentHumanInLoop = humanInTheLoop ? "Enabled" : "Disabled";
 

@@ -26,7 +26,11 @@ export interface RequestInfoExecutorNodeData {
 /**
  * Props for RequestInfoExecutorNode component
  */
-export type RequestInfoExecutorNodeProps = any;
+export interface RequestInfoExecutorNodeProps {
+  id: string;
+  data: RequestInfoExecutorNodeData;
+  selected?: boolean;
+}
 
 const springTransition = {
   type: "spring" as const,
@@ -47,8 +51,8 @@ export const RequestInfoExecutorNode = memo(({ id, data, selected }: RequestInfo
   const executorTypeName = "request-info-executor";
   
   // Get model from metadata or default
-  const metadata = (executor.metadata as Record<string, any> | undefined) ?? {};
-  const model = metadata.model || "GPT-5";
+  const metadata = (executor.metadata as Record<string, unknown> | undefined) ?? {};
+  const model = (metadata.model as string | undefined) || "GPT-5";
 
   const hovered = internalHovered;
 
