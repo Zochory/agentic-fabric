@@ -35,7 +35,11 @@ export interface FanInNodeData {
 /**
  * Props for FanInNode component
  */
-export type FanInNodeProps = any;
+export interface FanInNodeProps {
+  id: string;
+  data: FanInNodeData;
+  selected?: boolean;
+}
 
 /**
  * Fan-in edge group node - multiple sources converge into one target

@@ -35,7 +35,11 @@ export interface FanOutNodeData {
 /**
  * Props for FanOutNode component
  */
-export type FanOutNodeProps = any;
+export interface FanOutNodeProps {
+  id: string;
+  data: FanOutNodeData;
+  selected?: boolean;
+}
 
 /**
  * Fan-out edge group node - one source broadcasts to multiple targets
