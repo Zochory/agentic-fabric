@@ -26,7 +26,11 @@ export interface WorkflowExecutorNodeData {
 /**
  * Props for WorkflowExecutorNode component
  */
-export type WorkflowExecutorNodeProps = any;
+export interface WorkflowExecutorNodeProps {
+  id: string;
+  data: WorkflowExecutorNodeData;
+  selected?: boolean;
+}
 
 const springTransition = {
   type: "spring" as const,
@@ -47,8 +51,8 @@ export const WorkflowExecutorNode = memo(({ id, data, selected }: WorkflowExecut
   const executorTypeName = "workflow-executor";
   
   // Get model from metadata or default
-  const metadata = (executor.metadata as Record<string, any> | undefined) ?? {};
-  const model = metadata.model || "GPT-5";
+  const metadata = (executor.metadata as Record<string, unknown> | undefined) ?? {};
+  const model = (metadata.model as string | undefined) || "GPT-5";
 
   const hovered = internalHovered;
 

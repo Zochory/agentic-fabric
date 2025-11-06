@@ -1,7 +1,6 @@
 "use client";
 
 import React, { memo } from "react";
-import { Handle, Position, type NodeProps as ReactFlowNodeProps } from "@xyflow/react";
 import {
   Node,
   NodeContent,
@@ -35,18 +34,20 @@ export interface FanInNodeData {
 /**
  * Props for FanInNode component
  */
-export type FanInNodeProps = any;
+export interface FanInNodeProps {
+  id: string;
+  data: FanInNodeData;
+  selected?: boolean;
+}
 
 /**
  * Fan-in edge group node - multiple sources converge into one target
  */
-export const FanInNode = memo(({ id, data, selected }: FanInNodeProps) => {
+export const FanInNode = memo(({ data, selected }: FanInNodeProps) => {
   const { handles, group, label, description } = data;
 
   const displayLabel = label || `Fan-In (${group.sources.length} sources)`;
   const displayDescription = description || `Converges ${group.sources.length} sources into ${group.target}`;
-
-  const sourceCount = handles.sourceCount || group.sources.length;
 
   return (
     <Node handles={handles} className={cn(selected && "ring-2 ring-primary")}>

@@ -26,7 +26,11 @@ export interface FunctionExecutorNodeData {
 /**
  * Props for FunctionExecutorNode component
  */
-export type FunctionExecutorNodeProps = any;
+export interface FunctionExecutorNodeProps {
+  id: string;
+  data: FunctionExecutorNodeData;
+  selected?: boolean;
+}
 
 const springTransition = {
   type: "spring" as const,
@@ -47,8 +51,8 @@ export const FunctionExecutorNode = memo(({ id, data, selected }: FunctionExecut
   const executorTypeName = "function-executor";
   
   // Get model from metadata or default
-  const metadata = (executor.metadata as Record<string, any> | undefined) ?? {};
-  const model = metadata.model || "GPT-5";
+  const metadata = (executor.metadata as Record<string, unknown> | undefined) ?? {};
+  const model = (metadata.model as string | undefined) || "GPT-5";
 
   const hovered = internalHovered;
 

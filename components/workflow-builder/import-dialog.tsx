@@ -25,12 +25,12 @@ import {
   deserializeFromYAML,
 } from "@/lib/workflow/export/serializers";
 import { validateWorkflowSchema } from "@/lib/workflow/export/validator";
-import { workflowToReactFlow } from "@/lib/workflow/conversion";
+import { workflowToReactFlow, type WorkflowReactFlowNode, type WorkflowReactFlowEdge } from "@/lib/workflow/conversion";
 
 interface ImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImport: (nodes: any[], edges: any[]) => void;
+  onImport: (nodes: WorkflowReactFlowNode[], edges: WorkflowReactFlowEdge[]) => void;
 }
 
 export function ImportDialog({

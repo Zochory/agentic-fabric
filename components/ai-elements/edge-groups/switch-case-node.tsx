@@ -1,7 +1,6 @@
 "use client";
 
 import React, { memo } from "react";
-import { Handle, Position, type NodeProps as ReactFlowNodeProps } from "@xyflow/react";
 import {
   Node,
   NodeContent,
@@ -14,7 +13,7 @@ import { Toolbar } from "@/components/ai-elements/toolbar";
 import { Actions, Action } from "@/components/ai-elements/actions";
 import { GitBranch, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { SwitchCaseEdgeGroup } from "@/lib/workflow/edges";
+import type { SwitchCaseEdgeGroup, Case } from "@/lib/workflow/edges";
 
 /**
  * Switch-case node data
@@ -35,12 +34,16 @@ export interface SwitchCaseNodeData {
 /**
  * Props for SwitchCaseNode component
  */
-export type SwitchCaseNodeProps = any;
+export interface SwitchCaseNodeProps {
+  id: string;
+  data: SwitchCaseNodeData;
+  selected?: boolean;
+}
 
 /**
  * Switch-case edge group node - conditional routing based on expression value
  */
-export const SwitchCaseNode = memo(({ id, data, selected }: SwitchCaseNodeProps) => {
+export const SwitchCaseNode = memo(({ data, selected }: SwitchCaseNodeProps) => {
   const { handles, group, label, description } = data;
 
   const displayLabel = label || `Switch/Case (${group.cases.length} cases)`;
@@ -77,7 +80,7 @@ export const SwitchCaseNode = memo(({ id, data, selected }: SwitchCaseNodeProps)
           )}
           {group.cases.length > 0 && (
             <div className="text-xs space-y-1 max-h-20 overflow-auto">
-              {group.cases.map((caseItem: any, idx: number) => (
+              {group.cases.map((caseItem: Case, idx: number) => (
                 <div key={caseItem.id} className="bg-muted p-1 rounded">
                   Case {idx + 1}: {String(caseItem.value)} → {caseItem.target}
                 </div>

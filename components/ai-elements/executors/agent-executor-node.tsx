@@ -26,7 +26,11 @@ export interface AgentExecutorNodeData {
 /**
  * Props for AgentExecutorNode component
  */
-export type AgentExecutorNodeProps = any;
+export interface AgentExecutorNodeProps {
+  id: string;
+  data: AgentExecutorNodeData;
+  selected?: boolean;
+}
 
 const springTransition = {
   type: "spring" as const,
@@ -50,15 +54,15 @@ export const AgentExecutorNode = memo(({ id, data, selected }: AgentExecutorNode
     systemPrompt?: string;
   };
 
-  const metadata = (executor.metadata as Record<string, any> | undefined) ?? {};
-  const magenticMeta = (metadata.magentic as Record<string, any> | undefined) ?? {};
-  const agentRole = typedExecutor.agentRole || magenticMeta.agentRole;
+  const metadata = (executor.metadata as Record<string, unknown> | undefined) ?? {};
+  const magenticMeta = (metadata.magentic as Record<string, unknown> | undefined) ?? {};
+  const agentRole = typedExecutor.agentRole || (magenticMeta.agentRole as string | undefined);
 
   const displayLabel = label || executor.label || agentRole || executor.agentId || executor.id;
   const executorTypeName = "agent-executor";
   
   // Get model from executor or default
-  const model = executor.model || metadata.model || "GPT-5";
+  const model = executor.model || (metadata.model as string | undefined) || "GPT-5";
 
   const hovered = internalHovered;
 

@@ -10,13 +10,14 @@ import {
   useReactFlow,
   type Connection,
   type Edge,
+  type EdgeProps,
   type Node as ReactFlowNode,
   type NodeChange,
+  type NodeProps,
   type XYPosition,
 } from "@xyflow/react";
 import { Canvas } from "@/components/ai-elements/canvas";
 import { Connection as ConnectionLine } from "@/components/ai-elements/connection";
-import { Edge as WorkflowEdgeComponent } from "@/components/ai-elements/edge";
 import { TemporaryEdge, AnimatedEdge } from "@/components/ai-elements/edge";
 import { EdgeNodeDropdown } from "@/components/workflow-builder/edge-node-dropdown";
 import {
@@ -27,14 +28,11 @@ import {
   NodeHeader,
   NodeTitle,
 } from "@/components/ai-elements/node";
-import { Panel } from "@/components/ai-elements/panel";
 import { Toolbar } from "@/components/ai-elements/toolbar";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { TextBlockCard } from "@/components/ai-elements/text-block-card";
 import { AttributeNode } from "@/components/ai-elements/attribute-node";
 import { Action, Actions } from "@/components/ai-elements/actions";
-import { Pencil, Trash2, Maximize2, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { nanoid } from "nanoid";
 
 // Import executor node components
@@ -71,14 +69,12 @@ import {
   defaultTextBlockData,
   defaultWorkflowStepData,
 } from "@/lib/workflow/types";
-import type { WorkflowReactFlowNode, WorkflowNodeData, WorkflowNodeDataWithIndex } from "@/lib/workflow/conversion";
+import type { WorkflowReactFlowNode, WorkflowNodeDataWithIndex } from "@/lib/workflow/conversion";
 import {
   reactFlowToWorkflow,
-  workflowToReactFlow,
   createExecutorFromNodeType,
   createNodeDataFromExecutorType,
 } from "@/lib/workflow/conversion";
-import type { Workflow } from "@/lib/workflow/workflow";
 import type { FanInEdgeGroup, FanOutEdgeGroup, SwitchCaseEdgeGroup } from "@/lib/workflow/edges";
 import type { ExecutorType } from "@/lib/workflow/executors";
 import { MAGENTIC_AGENT_PRESETS } from "@/lib/workflow/magentic-presets";
@@ -361,7 +357,7 @@ function createEdgeGroupNode(nodeType: EdgeGroupNodeType, position: XYPosition):
   };
 }
 
-const WorkflowStepNode = memo(({ id, data }: { id: string; data: WorkflowStepNodeData }) => (
+const WorkflowStepNode = memo(({ data }: { data: WorkflowStepNodeData }) => (
   <Node handles={data.handles}>
     <NodeHeader>
       <NodeTitle>{data.label}</NodeTitle>
@@ -396,6 +392,7 @@ const TextBlockWorkflowNode = memo(({
 
   return <TextBlockCard {...cardProps} data-id={id} isSelected={selected} />;
 });
+TextBlockWorkflowNode.displayName = "TextBlockWorkflowNode";
 
 const AttributeWorkflowNode = memo(({
   id,
@@ -409,8 +406,9 @@ const AttributeWorkflowNode = memo(({
     <AttributeNode {...attributeProps} data-id={id} isSelected={selected} />
   );
 });
+AttributeWorkflowNode.displayName = "AttributeWorkflowNode";
 
-const nodeTypes: Record<string, React.ComponentType<any>> = {
+const nodeTypes: Record<string, React.ComponentType<NodeProps>> = {
   // Legacy node types (kept for backward compatibility)
   workflow: WorkflowStepNode,
   textBlock: TextBlockWorkflowNode,
@@ -431,7 +429,7 @@ const nodeTypes: Record<string, React.ComponentType<any>> = {
 
 // Create edge types with handlers
 const createEdgeTypes = (onEdgeHover?: (edgeId: string, position: XYPosition, screenPosition: { x: number; y: number }) => void) => ({
-  animated: (props: any) => (
+  animated: (props: EdgeProps) => (
     <AnimatedEdge {...props} onHover={onEdgeHover ? (pos: XYPosition, screenPos: { x: number; y: number }) => onEdgeHover(props.id, pos, screenPos) : undefined} />
   ),
   temporary: TemporaryEdge,
@@ -441,7 +439,7 @@ const createEdgeTypes = (onEdgeHover?: (edgeId: string, position: XYPosition, sc
 
 const WorkflowCanvas = () => {
   const [nodes, setNodes] =
-    useNodesState(initialNodes as any);
+    useNodesState<WorkflowNodeDataWithIndex>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlow = useReactFlow();
   const flowWrapperRef = useRef<HTMLDivElement>(null);
@@ -453,8 +451,8 @@ const WorkflowCanvas = () => {
   const [currentTool, setCurrentTool] = useState<"pointer" | "pan">("pointer");
 
   // Undo/Redo history management
-  const [history, setHistory] = useState<Array<{ nodes: any[]; edges: Edge[] }>>([
-    { nodes: initialNodes as any[], edges: initialEdges },
+  const [history, setHistory] = useState<Array<{ nodes: WorkflowNode[]; edges: Edge[] }>>([
+    { nodes: initialNodes, edges: initialEdges },
   ]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -463,7 +461,7 @@ const WorkflowCanvas = () => {
 
   // Save state to history
   const saveToHistory = useCallback(
-    (newNodes: any[], newEdges: Edge[]) => {
+    (newNodes: WorkflowNode[], newEdges: Edge[]) => {
       setHistory((prev) => {
         const newHistory = prev.slice(0, historyIndex + 1);
         newHistory.push({ nodes: structuredClone(newNodes), edges: structuredClone(newEdges) });
@@ -476,7 +474,7 @@ const WorkflowCanvas = () => {
 
   // Convert React Flow state to Workflow format
   const currentWorkflow = useMemo(() => {
-    return reactFlowToWorkflow(nodes as any, edges, "workflow-1", "Agentic Fabric");
+    return reactFlowToWorkflow(nodes, edges, "workflow-1", "Agentic Fabric");
   }, [nodes, edges]);
 
   // Handle node selection - wrapper to sync selected node state
@@ -752,9 +750,10 @@ const WorkflowCanvas = () => {
     const currentEdges = reactFlow.getEdges();
 
     const findPresetKey = (node: ReactFlowNode<WorkflowNodeDataWithIndex>) => {
-      const executor = (node.data as any)?.executor as BaseExecutor | undefined;
-      const metadata = (executor?.metadata as any)?.magentic;
-      return metadata?.presetKey ?? metadata?.preset ?? undefined;
+      const executor = node.data.executor as BaseExecutor | undefined;
+      const metadata = executor?.metadata as Record<string, unknown> | undefined;
+      const magentic = metadata?.magentic as { presetKey?: string; preset?: string } | undefined;
+      return magentic?.presetKey ?? magentic?.preset ?? undefined;
     };
 
     let orchestratorNode = currentNodes.find((node) => node.type === "magentic-orchestrator-executor");
@@ -802,7 +801,7 @@ const WorkflowCanvas = () => {
       );
 
       if (existing) {
-        const executor = (existing.data as any)?.executor as BaseExecutor | undefined;
+        const executor = existing.data.executor as BaseExecutor | undefined;
         const updatedExecutor = executor
           ? {
               ...executor,
@@ -827,7 +826,7 @@ const WorkflowCanvas = () => {
           position: targetPosition,
           data: {
             ...(existing.data as WorkflowNodeDataWithIndex),
-            executor: updatedExecutor ?? (existing.data as any).executor,
+            executor: updatedExecutor ?? (existing.data.executor as BaseExecutor),
             label: preset.label,
             description: preset.description,
           },
@@ -881,9 +880,10 @@ const WorkflowCanvas = () => {
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === nodeId && isExecutorNode(node as ReactFlowNode<WorkflowNodeDataWithIndex>)) {
-            const currentData = node.data as any;
-            if (currentData.executor) {
-              const updatedExecutor = { ...currentData.executor, ...updates };
+            const currentData = node.data as WorkflowNodeDataWithIndex;
+            const executor = currentData.executor as BaseExecutor | undefined;
+            if (executor) {
+              const updatedExecutor = { ...executor, ...updates };
               const nextNode: ReactFlowNode<WorkflowNodeDataWithIndex> = {
                 ...node,
                 data: {
@@ -910,19 +910,20 @@ const WorkflowCanvas = () => {
 
   // Check if node is an executor node
   const isExecutorNode = (node: ReactFlowNode<WorkflowNodeDataWithIndex>): boolean => {
-    const data = node.data as any;
+    const data = node.data;
+    const variant = data.variant as string | undefined;
     return (
-      data?.variant === "executor" ||
-      data?.variant === "function-executor" ||
-      data?.variant === "agent-executor" ||
-      data?.variant === "workflow-executor" ||
-      data?.variant === "request-info-executor"
+      variant === "executor" ||
+      variant === "function-executor" ||
+      variant === "agent-executor" ||
+      variant === "workflow-executor" ||
+      variant === "request-info-executor"
     );
   };
 
   // Handle node selection
   const handleNodeClick = useCallback(
-    (_event: React.MouseEvent, node: any) => {
+    (_event: React.MouseEvent, node: ReactFlowNode) => {
       setSelectedNode(node as ReactFlowNode<WorkflowNodeDataWithIndex>);
     },
     []
@@ -930,8 +931,8 @@ const WorkflowCanvas = () => {
 
   // Handle workflow import
   const handleImport = useCallback(
-    (importedNodes: any[], importedEdges: Edge[]) => {
-      setNodes(importedNodes as any);
+    (importedNodes: WorkflowNode[], importedEdges: Edge[]) => {
+      setNodes(importedNodes);
       setEdges(importedEdges);
       reactFlow.fitView();
     },
@@ -1015,7 +1016,7 @@ const WorkflowCanvas = () => {
             selectedNode={{
               id: selectedNode.id,
               type: selectedNode.type || "executor",
-              data: selectedNode.data as any,
+              data: selectedNode.data,
             }}
             onUpdate={handleNodeUpdate}
             onDelete={(nodeId) => {
@@ -1059,7 +1060,7 @@ const WorkflowCanvas = () => {
                 const newIndex = historyIndex - 1;
                 setHistoryIndex(newIndex);
                 const state = history[newIndex];
-                setNodes(state.nodes as any);
+                setNodes(state.nodes);
                 setEdges(state.edges);
               }
             }}
@@ -1068,7 +1069,7 @@ const WorkflowCanvas = () => {
                 const newIndex = historyIndex + 1;
                 setHistoryIndex(newIndex);
                 const state = history[newIndex];
-                setNodes(state.nodes as any);
+                setNodes(state.nodes);
                 setEdges(state.edges);
               }
             }}

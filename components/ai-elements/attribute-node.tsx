@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Handle, Position } from "@xyflow/react";
+import { motion } from "motion/react";
 import { Settings, Check, ChevronDown, ChevronUp, Plus } from "lucide-react";
 import type {
   AttributeDefinition,
